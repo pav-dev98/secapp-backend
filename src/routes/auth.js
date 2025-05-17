@@ -180,10 +180,10 @@ router.post('/login', async (req, res) => {
  *         description: Error interno del servidor al registrar usuario.
  */
 router.post('/register', async (req, res) => {
-  const { email, password } = req.body;
+  const { name,email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email y contraseña son requeridos' });
+  if ( !name || !email || !password) {
+    return res.status(400).json({ error: 'Todos los campos son requeridos' });
   }
 
   // Validación básica de contraseña (ej: longitud mínima)
@@ -205,6 +205,7 @@ router.post('/register', async (req, res) => {
     // 3. Crear el nuevo usuario
     const newUser = await prisma.user.create({
       data: {
+        name,
         email,
         password: hashedPassword,
       },
@@ -216,6 +217,7 @@ router.post('/register', async (req, res) => {
         message: 'Usuario registrado exitosamente',
         user: {
             id: newUser.id,
+            name: newUser.name,
             email: newUser.email,
             createdAt: newUser.createdAt
         }
