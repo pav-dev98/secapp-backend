@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
@@ -8,7 +10,44 @@ if (process.env.NODE_ENV !== 'production') {
 
 const app = express();
 const prisma = new PrismaClient();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
+
+// Swagger definition
+const swaggerDefinition = {
+  openapi: '3.0.0',
+  info: {
+    title: 'Secure App API',
+    version: '1.0.0',
+    description: 'API documentation for the Secure App application',
+  },
+  servers: [
+    {
+      url: `http://localhost:${PORT}/api/v1`,
+      description: 'Development server',
+    },
+    {
+      url: `http://192.168.1.10:${PORT}/api/v1`,
+      description: 'Production server',
+    }
+  ],
+  components: { 
+    securitySchemes: {
+      bearerAuth: { 
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      }
+    },
+    schemas: {} 
+  }
+};
+
+const options = {
+  swaggerDefinition,
+  apis: ['./src/routes/*.js'],
+};
+
+const swaggerSpec = swaggerJsdoc(options);
 
 // Configuración de CORS
 const corsOptions = {
@@ -22,10 +61,18 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// Swagger UI setup
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 // Message routes
 const messageRoutes = require('./routes/message');
 app.use('/api/v1', messageRoutes);
 
+// Auth routes
+const authRoutes = require('./routes/auth');
+app.use('/api/v1/auth', authRoutes);
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log(`Swagger docs available at http://localhost:${PORT}/api-docs`);
 });
