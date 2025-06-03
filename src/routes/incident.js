@@ -26,6 +26,14 @@ const prisma = new PrismaClient();
  *         userId:
  *           type: integer
  *           description: ID del usuario que reportó la incidencia
+ *         latitude:
+ *           type: number
+ *           format: float
+ *           description: Latitud de la ubicación de la incidencia
+ *         longitude:
+ *           type: number
+ *           format: float
+ *           description: Longitud de la ubicación de la incidencia
  *         createdAt:
  *           type: string
  *           format: date-time
@@ -37,19 +45,30 @@ const prisma = new PrismaClient();
  *     NewIncident:
  *       type: object
  *       required:
- *         - type
- *         - description
- *         - userId
+ *         - tipoIncidencia
+ *         - descripcion
+ *         - ubicacion
  *       properties:
- *         type:
+ *         tipoIncidencia:
  *           type: string
  *           description: Tipo de incidencia
- *         description:
+ *         descripcion:
  *           type: string
  *           description: Descripción detallada de la incidencia
- *         userId:
- *           type: integer
- *           description: ID del usuario que reporta la incidencia
+ *         ubicacion:
+ *           type: object
+ *           required:
+ *             - lat
+ *             - lng
+ *           properties:
+ *             lat:
+ *               type: number
+ *               format: float
+ *               example: -9.299509131491826
+ *             lng:
+ *               type: number
+ *               format: float
+ *               example: -75.99846752086636
  */
 
 /**
@@ -163,25 +182,29 @@ router.get('/:id', async (req, res) => {
  *         description: Datos de entrada inválidos
  */
 router.post('/', async (req, res) => {
-  const { type, description, userId } = req.body;
+  const { tipoIncidencia, descripcion, ubicacion, userId } = req.body;
   
   // Validación básica
-  if (!type || !description || !userId) {
-    return res.status(400).json({ error: 'Faltan campos requeridos' });
+  if (!tipoIncidencia || !descripcion || !ubicacion || !ubicacion.lat || !ubicacion.lng || !userId) {
+    return res.status(400).json({ 
+      error: 'Faltan campos requeridos: tipoIncidencia, descripcion, ubicacion {lat, lng}, userId' 
+    });
   }
 
   try {
     const newIncident = await prisma.incident.create({
       data: {
-        type,
-        description,
+        type: tipoIncidencia,
+        description: descripcion,
+        latitude: parseFloat(ubicacion.lat),
+        longitude: parseFloat(ubicacion.lng),
         userId: Number(userId),
       },
     });
     res.status(201).json(newIncident);
   } catch (error) {
     console.error('Error al crear la incidencia:', error);
-    res.status(500).json({ error: 'Error al crear la incidencia' });
+    res.status(500).json({ error: 'Error al crear la incidencia', details: error.message });
   }
 });
 
@@ -207,13 +230,22 @@ router.post('/', async (req, res) => {
  *           schema:
  *             type: object
  *             properties:
- *               type:
+ *               tipoIncidencia:
  *                 type: string
- *               description:
+ *               descripcion:
  *                 type: string
  *               status:
  *                 type: string
  *                 enum: [PENDING, IN_PROGRESS, RESOLVED, REJECTED]
+ *               ubicacion:
+ *                 type: object
+ *                 properties:
+ *                   lat:
+ *                     type: number
+ *                     format: float
+ *                   lng:
+ *                     type: number
+ *                     format: float
  *     responses:
  *       200:
  *         description: Incidencia actualizada exitosamente
@@ -226,23 +258,35 @@ router.post('/', async (req, res) => {
  */
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
-  const { type, description, status } = req.body;
+  const { tipoIncidencia, descripcion, status, ubicacion } = req.body;
 
   try {
+    const updateData = {};
+    
+    if (tipoIncidencia) updateData.type = tipoIncidencia;
+    if (descripcion) updateData.description = descripcion;
+    if (status) updateData.status = status;
+    
+    if (ubicacion) {
+      if (ubicacion.lat !== undefined) updateData.latitude = parseFloat(ubicacion.lat);
+      if (ubicacion.lng !== undefined) updateData.longitude = parseFloat(ubicacion.lng);
+    }
+
     const updatedIncident = await prisma.incident.update({
       where: { id: Number(id) },
-      data: {
-        ...(type && { type }),
-        ...(description && { description }),
-        ...(status && { status }),
-      },
+      data: updateData,
     });
+    
     res.json(updatedIncident);
   } catch (error) {
     if (error.code === 'P2025') {
       return res.status(404).json({ error: 'Incidencia no encontrada' });
     }
-    res.status(500).json({ error: 'Error al actualizar la incidencia' });
+    console.error('Error al actualizar la incidencia:', error);
+    res.status(500).json({ 
+      error: 'Error al actualizar la incidencia',
+      details: error.message 
+    });
   }
 });
 

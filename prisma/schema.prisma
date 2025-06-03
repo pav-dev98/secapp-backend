@@ -44,6 +44,8 @@ model Incident {
   type        String
   description String
   status      IncidentStatus @default(PENDING)
+  latitude    Decimal       @db.Decimal(10, 8)
+  longitude   Decimal       @db.Decimal(11, 8)
   userId      Int
   user        User          @relation(fields: [userId], references: [id])
   createdAt   DateTime      @default(now())
