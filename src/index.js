@@ -72,6 +72,10 @@ app.use('/api/v1', messageRoutes);
 const authRoutes = require('./routes/auth');
 app.use('/api/v1/auth', authRoutes);
 
+// Incident routes
+const incidentRoutes = require('./routes/incident');
+app.use('/api/v1/incidents', incidentRoutes);
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Swagger docs available at http://localhost:${PORT}/api-docs`);
