@@ -28,6 +28,8 @@ model User {
   password  String
   name      String?
   incidents Incident[]
+  emergencyContacts EmergencyContact[] @relation("EmergencyContactUser")
+  contacts  EmergencyContact[] @relation("EmergencyContactContact")
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 }
@@ -52,4 +54,17 @@ model Incident {
   updatedAt   DateTime      @updatedAt
 
   @@map("incidents")
+}
+
+model EmergencyContact {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  contactId   Int
+  createdAt   DateTime @default(now())
+
+  user        User     @relation("EmergencyContactUser", fields: [userId], references: [id])
+  contact     User     @relation("EmergencyContactContact", fields: [contactId], references: [id])
+
+  @@unique([userId, contactId])
+  @@map("emergency_contacts")
 }
