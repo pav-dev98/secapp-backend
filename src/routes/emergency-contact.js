@@ -42,12 +42,14 @@ router.get('/', async (req, res) => {
           select: {
             id: true,
             name: true,
-            email: true
+            email: true,
+            phone: true,
+            notify: true
           }
         }
       }
     });
-
+    console.log(emergencyContacts,"emergencyContacts");
     res.json(emergencyContacts.map(contact => contact.contact));
   } catch (error) {
     console.error('Error getting emergency contacts:', error);
