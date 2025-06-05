@@ -76,6 +76,10 @@ app.use('/api/v1/auth', authRoutes);
 const incidentRoutes = require('./routes/incident');
 app.use('/api/v1/incidents', incidentRoutes);
 
+// Emergency Contact routes
+const emergencyContactRoutes = require('./routes/emergency-contact');
+app.use('/api/v1/emergency-contacts', emergencyContactRoutes);
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Swagger docs available at http://localhost:${PORT}/api-docs`);
