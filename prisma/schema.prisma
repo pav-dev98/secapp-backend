@@ -27,6 +27,8 @@ model User {
   email     String     @unique
   password  String
   name      String?
+  phone     String?    @db.VarChar(20)
+  notify    Boolean    @default(true)
   role      Role       @default(USER)
   incidents Incident[]
   emergencyContacts EmergencyContact[] @relation("EmergencyContactUser")
