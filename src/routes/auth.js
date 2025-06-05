@@ -137,7 +137,7 @@ router.post('/login', async (req, res) => {
 
     // 3. Generar el JWT
     const token = jwt.sign(
-      { userId: user.id, email: user.email }, // Payload del token
+      { userId: user.id, email: user.email, role: user.role }, // Payload del token
       JWT_SECRET,                             // Clave secreta
       { expiresIn: '1h' }                     // Opciones (ej: expira en 1 hora)
     );
@@ -180,9 +180,9 @@ router.post('/login', async (req, res) => {
  *         description: Error interno del servidor al registrar usuario.
  */
 router.post('/register', async (req, res) => {
-  const { name,email, password } = req.body;
+  const { name,email, password, role } = req.body;
 
-  if ( !name || !email || !password) {
+  if ( !name || !email || !password || !role) {
     return res.status(400).json({ error: 'Todos los campos son requeridos' });
   }
 
@@ -208,6 +208,7 @@ router.post('/register', async (req, res) => {
         name,
         email,
         password: hashedPassword,
+        role: role,
       },
     });
 
@@ -219,6 +220,7 @@ router.post('/register', async (req, res) => {
             id: newUser.id,
             name: newUser.name,
             email: newUser.email,
+            role: newUser.role,
             createdAt: newUser.createdAt
         }
      });
