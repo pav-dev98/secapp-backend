@@ -27,11 +27,20 @@ model User {
   email     String     @unique
   password  String
   name      String?
+  role      Role       @default(USER)
   incidents Incident[]
   emergencyContacts EmergencyContact[] @relation("EmergencyContactUser")
   contacts  EmergencyContact[] @relation("EmergencyContactContact")
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+}
+
+enum Role {
+  USER
+  SERENO
+  SERENO_ADMIN
+  POLICIA
+  POLICIA_ADMIN
 }
 
 enum IncidentStatus {
