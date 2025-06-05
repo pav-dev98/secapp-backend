@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-
+const { authenticateToken } = require('../middleware/auth');
+router.use(authenticateToken);
 // Obtener todos los contactos de emergencia del usuario
 /**
  * @swagger
@@ -27,7 +28,10 @@ const prisma = new PrismaClient();
  *         description: Error interno del servidor
  */
 router.get('/', async (req, res) => {
-  const userId = req.body.userId;
+
+  // const userId = req.body.userId;
+  // obtenemos el userId del token
+  const userId = req.user.id;
   try {
     const emergencyContacts = await prisma.emergencyContact.findMany({
       where: {
