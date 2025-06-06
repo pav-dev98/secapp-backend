@@ -28,10 +28,7 @@ router.use(authenticateToken);
  *         description: Error interno del servidor
  */
 router.get('/', async (req, res) => {
-
-  // const userId = req.body.userId;
-  // obtenemos el userId del token
-  const userId = req.user.id;
+  const userId = req.user.userId;
   try {
     const emergencyContacts = await prisma.emergencyContact.findMany({
       where: {
@@ -49,10 +46,10 @@ router.get('/', async (req, res) => {
         }
       }
     });
-    console.log(emergencyContacts,"emergencyContacts");
+    // console.log(emergencyContacts,"emergencyContacts");
     res.json(emergencyContacts.map(contact => contact.contact));
   } catch (error) {
-    console.error('Error getting emergency contacts:', error);
+    // console.error('Error getting emergency contacts:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
@@ -93,8 +90,8 @@ router.get('/', async (req, res) => {
  *         description: Error interno del servidor
  */
 router.post('/', async (req, res) => {
-  console.log("llega a emergency-contact")
-  const userId = req.body.userId;
+  const userId = req.user.userId;
+
   try {
     const { contactId } = req.body;
 
@@ -117,7 +114,22 @@ router.post('/', async (req, res) => {
       }
     });
 
-    res.status(201).json(emergencyContact);
+    const contact = await prisma.user.findUnique({
+      where:{
+        id: emergencyContact.contactId
+      },
+      select:{
+        id:true,
+        name:true,
+        email:true,
+        phone:true,
+        notify:true
+      }
+    });
+
+    console.log("emergencyContact",contact)
+
+    res.status(201).json(contact);
   } catch (error) {
     console.error('Error adding emergency contact:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
