@@ -116,7 +116,6 @@ const JWT_SECRET = process.env.JWT_SECRET; // Necesitaremos añadir esto a .env
 router.post('/login', async (req, res) => {
 
   const { email, password } = req.body;
-  console.log(email, password,"email y password");
 
   if (!email || !password) {
     return res.status(400).json({ error: 'Email y contraseña son requeridos' });
@@ -143,7 +142,6 @@ router.post('/login', async (req, res) => {
     );
 
     // 4. Enviar el token al cliente
-    console.log(user,"user");
     res.json({ user:user,accessToken:token });
 
   } catch (error) {

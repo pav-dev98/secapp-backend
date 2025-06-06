@@ -80,6 +80,10 @@ app.use('/api/v1/incidents', incidentRoutes);
 const emergencyContactRoutes = require('./routes/emergency-contact');
 app.use('/api/v1/emergency-contacts', emergencyContactRoutes);
 
+// User routes
+const userRoutes = require('./routes/user');
+app.use('/api/v1/users', userRoutes);
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Swagger docs available at http://localhost:${PORT}/api-docs`);
