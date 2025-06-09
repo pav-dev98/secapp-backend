@@ -1,8 +1,11 @@
 const express = require('express');
+const http = require('http');
 const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const { setupSocketIO } = require('./socket');
+
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
@@ -84,7 +87,11 @@ app.use('/api/v1/emergency-contacts', emergencyContactRoutes);
 const userRoutes = require('./routes/user');
 app.use('/api/v1/users', userRoutes);
 
-app.listen(PORT, () => {
+// Socket.io
+const server = http.createServer(app);
+setupSocketIO(server);
+
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Swagger docs available at http://localhost:${PORT}/api-docs`);
 });
