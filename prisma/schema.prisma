@@ -65,7 +65,7 @@ enum IncidentType {
 
 model Incident {
   id          Int           @id @default(autoincrement())
-  type        IncidentType
+  type        IncidentType?
   description String
   status      IncidentStatus @default(PENDING)
   latitude    Decimal       @db.Decimal(10, 8)
