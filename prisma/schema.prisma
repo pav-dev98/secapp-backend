@@ -33,6 +33,9 @@ model User {
   incidents Incident[]
   emergencyContacts EmergencyContact[] @relation("EmergencyContactUser")
   contacts  EmergencyContact[] @relation("EmergencyContactContact")
+  receivedNotifications    Notification[]  @relation("ReceivedNotifications")
+  sentNotifications        Notification[]  @relation("SentNotifications")
+
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 }
@@ -52,9 +55,17 @@ enum IncidentStatus {
   REJECTED
 }
 
+enum IncidentType {
+  PANIC_ALERT
+  ROBBERY
+  TRAFFIC_ACCIDENT
+  VANDALISM
+  VIOLENCE
+}
+
 model Incident {
   id          Int           @id @default(autoincrement())
-  type        String
+  type        IncidentType
   description String
   status      IncidentStatus @default(PENDING)
   latitude    Decimal       @db.Decimal(10, 8)
@@ -78,4 +89,28 @@ model EmergencyContact {
 
   @@unique([userId, contactId])
   @@map("emergency_contacts")
+}
+
+
+enum NotificationType {
+  PANIC_ALERT
+  MESSAGE
+  FRIEND_REQUEST
+  SYSTEM_ALERT
+}
+
+model Notification {
+  id          Int      @id @default(autoincrement())
+  recipient   User     @relation("ReceivedNotifications", fields: [recipientId], references: [id])
+  recipientId Int
+
+  sender      User?    @relation("SentNotifications", fields: [senderId], references: [id])
+  senderId    Int?     // Puede ser null si es una alerta automática del sistema
+
+  type        NotificationType
+  message     String
+  isRead      Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
