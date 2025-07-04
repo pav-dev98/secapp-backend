@@ -87,6 +87,14 @@ app.use('/api/v1/emergency-contacts', emergencyContactRoutes);
 const userRoutes = require('./routes/user');
 app.use('/api/v1/users', userRoutes);
 
+// Panic Alert routes
+const panicAlertRoutes = require('./routes/panicAlert');
+app.use('/api/v1/panic-alert', panicAlertRoutes);
+
+// Notification routes
+const notificationRoutes = require('./routes/notification');
+app.use('/api/v1/notifications', notificationRoutes);
+
 // Socket.io
 const server = http.createServer(app);
 setupSocketIO(server);
